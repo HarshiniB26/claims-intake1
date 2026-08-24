@@ -1,0 +1,11 @@
+services:
+  status-tracker:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      ENVIRONMENT: local
+      STATUS_TRACKER_DATABASE_URL: sqlite:///./tasks.db
+      ENABLE_AUDIT: "true"
+      ENABLE_NOTIFICATIONS: "true"
+      DEFAULT_TENANT: internal
