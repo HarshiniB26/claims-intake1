@@ -1,0 +1,21 @@
+# Credentials. Never commit these.
+.env
+
+# Run output. Evidence is copied deliberately into docs/ instead.
+runs/*
+!runs/.gitkeep
+
+# Generated reports. comparison-skeleton.md is tracked; comparison.md is yours to commit.
+reports/*
+!reports/.gitkeep
+!reports/comparison-skeleton.md
+!reports/comparison.md
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/

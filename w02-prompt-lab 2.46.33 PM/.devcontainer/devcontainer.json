@@ -1,0 +1,11 @@
+{
+  "name": "w02-prompt-lab",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12-bookworm",
+  "workspaceFolder": "/workspaces/w02-prompt-lab",
+  "remoteUser": "vscode",
+  "containerEnv": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "SERVICE_ENV": "local"
+  },
+  "postCreateCommand": "uv sync --frozen"
+}
