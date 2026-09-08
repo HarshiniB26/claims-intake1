@@ -338,8 +338,3 @@ def submit_notification(
         )
     )
     return ValidationOutcome.ok(claim_reference=recorded.claim_reference)
-
-
-
-def _gate_probe() -> None:
-    unused_name = 1
