@@ -7,8 +7,18 @@ from decimal import Decimal
 
 import pytest
 
-from claims.models import ClaimType, NotificationRequest
+from claims.models import ClaimType, NotificationRequest, RecordedNotification
 from claims.repository import NotificationRepository, format_claim_reference
+
+
+def _record(
+    repository: NotificationRepository, notification: NotificationRequest
+) -> RecordedNotification:
+    return repository.record(
+        RecordedNotification.from_accepted(
+            notification, repository.allocate_claim_reference()
+        )
+    )
 
 
 @pytest.fixture
@@ -59,7 +69,7 @@ def test_record_issues_a_section_3_claim_reference(
         claim_type="collision",
         estimated_amount=Decimal("4200.00"),
     )
-    recorded = repository.record(notification)
+    recorded = _record(repository, notification)
     assert recorded.claim_reference == expected_reference
 
 
@@ -75,21 +85,23 @@ def test_claim_references_are_unique(
     second_policy: str,
     expected_second_reference: str,
 ) -> None:
-    first = repository.record(
+    first = _record(
+        repository,
         NotificationRequest(
             policy_number="MOT-4471",
             loss_date=date(2026, 4, 2),
             claim_type="collision",
             estimated_amount=Decimal("4200.00"),
-        )
+        ),
     )
-    second = repository.record(
+    second = _record(
+        repository,
         NotificationRequest(
             policy_number=second_policy,
             loss_date=date(2026, 4, 3),
             claim_type="theft",
             estimated_amount=Decimal("12500.00"),
-        )
+        ),
     )
     assert first.claim_reference != second.claim_reference
     assert second.claim_reference == expected_second_reference
@@ -136,7 +148,7 @@ def test_record_copies_notification_fields(
         estimated_amount=Decimal("4200.00"),
         description=description,
     )
-    recorded = repository.record(notification)
+    recorded = _record(repository, notification)
     assert recorded.policy_number == notification.policy_number
     assert recorded.loss_date == notification.loss_date
     assert recorded.claim_type == notification.claim_type
@@ -174,7 +186,7 @@ def test_find_matching_requires_all_three_fields(
     loss_date: date,
     claim_type: ClaimType,
 ) -> None:
-    repository.record(accepted_notification)
+    _record(repository, accepted_notification)
     assert repository.find_matching(policy_number, loss_date, claim_type) is None
 
 
@@ -196,7 +208,7 @@ def test_find_matching_returns_the_recorded_notification(
     loss_date: date,
     claim_type: ClaimType,
 ) -> None:
-    recorded = repository.record(accepted_notification)
+    recorded = _record(repository, accepted_notification)
     found = repository.find_matching(policy_number, loss_date, claim_type)
     assert found is recorded
     assert found.claim_reference == recorded.claim_reference
@@ -226,7 +238,7 @@ def test_unrecorded_submission_is_not_a_duplicate(
         )
         is None
     )
-    recorded = repository.record(notification)
+    recorded = _record(repository, notification)
     found = repository.find_matching(
         notification.policy_number,
         notification.loss_date,

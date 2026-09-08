@@ -1,14 +1,15 @@
 """Persistence for recorded notifications (contract section 3, WI-0151).
 
-`record` writes. `find_matching` queries the three-field composite. A rejected
-submission is absent because it is never passed to `record`.
+`record` writes a RecordedNotification. `find_matching` queries the
+three-field composite. The cabinet does not accept NotificationRequest: a
+rejected submission cannot be stored through this interface.
 """
 
 from __future__ import annotations
 
 from datetime import UTC, date, datetime
 
-from claims.models import ClaimType, NotificationRequest, RecordedNotification
+from claims.models import ClaimType, RecordedNotification
 
 
 def format_claim_reference(year: int, sequence: int) -> str:
@@ -27,18 +28,10 @@ class NotificationRepository:
         self._next_sequence += 1
         return reference
 
-    def record(self, notification: NotificationRequest) -> RecordedNotification:
+    def record(self, notification: RecordedNotification) -> RecordedNotification:
         # Does not decide duplicates. V-6 calls find_matching first (WI-0151).
-        recorded = RecordedNotification(
-            claim_reference=self.allocate_claim_reference(),
-            policy_number=notification.policy_number,
-            loss_date=notification.loss_date,
-            claim_type=notification.claim_type,
-            estimated_amount=notification.estimated_amount,
-            description=notification.description,
-        )
-        self._records.append(recorded)
-        return recorded
+        self._records.append(notification)
+        return notification
 
     def find_matching(
         self,

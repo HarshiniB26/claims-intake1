@@ -102,6 +102,12 @@ class RuleFailure:
 
 
 class RecordedNotification(BaseModel):
+    """A notification that passed every rule and was written.
+
+    Carries the claim reference issued at the time it was recorded. Contract
+    section 3 fixes the reference format.
+    """
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     claim_reference: Annotated[str, StringConstraints(pattern=CLAIM_REFERENCE_PATTERN)]
@@ -110,3 +116,16 @@ class RecordedNotification(BaseModel):
     claim_type: ClaimType
     estimated_amount: UsdToTheCent
     description: str | None = None
+
+    @classmethod
+    def from_accepted(
+        cls, notification: NotificationRequest, claim_reference: str
+    ) -> RecordedNotification:
+        return cls(
+            claim_reference=claim_reference,
+            policy_number=notification.policy_number,
+            loss_date=notification.loss_date,
+            claim_type=notification.claim_type,
+            estimated_amount=notification.estimated_amount,
+            description=notification.description,
+        )
