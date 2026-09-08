@@ -21,7 +21,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from claims.models import NotificationRequest, Policy, RecordedNotification
+from claims.models import NotificationRequest, Policy, RuleFailure
 from claims.policy_client import PolicyClient, PolicyNotFound
 from claims.repository import NotificationRepository
 
@@ -43,6 +43,8 @@ class ValidationOutcome:
     rule: str | None = None
     code: str | None = None
     detail: dict[str, Any] = field(default_factory=dict)
+    claim_reference: str | None = None
+    failure: RuleFailure | None = None
 
     @classmethod
     def ok(cls) -> ValidationOutcome:
@@ -124,28 +126,33 @@ def evaluate_claim_type_covered(
 
 def evaluate_notification(
     notification: NotificationRequest,
-    policy_client: PolicyClient,
-    repository: NotificationRepository,
-) -> ValidationOutcome:
-    """Evaluate every rule and return the outcome the caller sees.
+    policy: Policy,
+) -> RuleFailure | None:
+    """Evaluate the cover-period and product rules. No I/O.
 
-    A notification can violate several rules at once and the caller sees one
-    reason, so the order this function evaluates in is a caller-visible behavior.
-    It is fixed by contract section 4.1 and by nothing else. If you find yourself
-    choosing an order here, the contract is incomplete and the fix belongs there.
+    V-1 and V-6 are not here: V-1 needs the policy client and V-6 needs the
+    repository. Contract 4.1 order among the rules that take a Policy is
+    V-2, V-7, V-3, V-4, V-5.
     """
-    raise NotImplementedError("Day 3 assignment")
+    # Stub: return a value no test expects so failures are assertion mismatches.
+    return RuleFailure(rule="V-1", code="POLICY_NOT_FOUND")
 
 
 def submit_notification(
     notification: NotificationRequest,
     policy_client: PolicyClient,
     repository: NotificationRepository,
-) -> RecordedNotification | ValidationOutcome:
+) -> ValidationOutcome:
     """Validate, and record only if every rule passed.
 
     Nothing is written before the decision is made. A notification is either
     recorded with a claim reference or it does not exist, and there is no state in
     between for a later reader to interpret.
     """
-    raise NotImplementedError("Day 3 assignment")
+    # Stub: return a value no test expects so failures are assertion mismatches.
+    return ValidationOutcome(
+        passed=False,
+        rule="V-3",
+        code="LOSS_AFTER_EXPIRY",
+        failure=RuleFailure(rule="V-3", code="LOSS_AFTER_EXPIRY"),
+    )
