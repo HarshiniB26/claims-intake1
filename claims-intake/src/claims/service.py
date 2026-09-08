@@ -287,8 +287,10 @@ def evaluate_notification(
     for rule in POLICY_RULES:
         outcome = rule(notification, policy)
         if not outcome.passed:
-            assert outcome.failure is not None
-            return outcome.failure
+            return RuleFailure(
+                rule=cast(RuleIdentifier, outcome.rule),
+                code=cast(ErrorCode, outcome.code),
+            )
     return None
 
 
@@ -308,16 +310,24 @@ def submit_notification(
     evaluate_notification for V-2, V-7, V-3, V-4, V-5. V-6 is not in
     POLICY_RULES because duplicate detection is a query against recorded
     notifications (WI-0151), not a comparison against a Policy.
+
+    The only exception caught is PolicyNotFound (the master answered: V-1).
+    PolicyLookupFailed is not a rule outcome and is not caught, so its reason
+    reaches the HTTP layer intact (contract section 6).
     """
-    existence = evaluate_policy_exists(notification, policy_client)
-    if not existence.passed:
-        return existence
+    try:
+        record = policy_client.get_policy(notification.policy_number)
+    except PolicyNotFound:
+        return ValidationOutcome.failed(
+            "V-1",
+            "POLICY_NOT_FOUND",
+            policy_number=notification.policy_number,
+        )
 
     duplicate = evaluate_not_duplicate(notification, repository)
     if not duplicate.passed:
         return duplicate
 
-    record = policy_client.get_policy(notification.policy_number)
     failure = evaluate_notification(notification, _policy_from_record(record))
     if failure is not None:
         return ValidationOutcome.failed(failure.rule, failure.code)
