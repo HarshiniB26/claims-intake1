@@ -1,48 +1,33 @@
 # Tool comparison
 
-I used one agent for this work: Cursor. I did not use another product.
+I used Cursor only. There was no second agent.
 
-The task I did with the agent was the README: how to run the service, how to
-run the tests, and why the image is built with `--platform linux/amd64`.
+The task I did in Cursor was the README: how to run the service, how to run
+the tests, and why we build with `--platform linux/amd64`.
 
-What I can compare is the Cursor **agent** against doing the same work **myself**
-in Cursor (files, terminal, GitHub).
+## What Cursor made easy
 
-## What the agent made easy
+It was already in this repo. It read `routes.py` and used
+`claims.api.routes:app` instead of guessing a module name. It saw
+`Linux aarch64` and `docker: command not found`, so the README could say this
+environment is ARM, Docker is not installed here, and the image is built on a
+machine that has Docker.
 
-It was already in this repository. It took `claims.api.routes:app` from
-`routes.py` instead of inventing a path. It saw `Linux aarch64` and
-`docker: command not found`, so the README could say this environment is ARM,
-has no Docker, and the image should be built on a machine that does.
+It started uvicorn. A `POST /notifications` returned `201`, which is what a
+new joiner should see.
 
-It ran uvicorn and a `POST /notifications` that returned `201`, which is the
-check a new joiner needs.
+## What Cursor made awkward
 
-## What the agent made awkward
+It tried `docker buildx` in this container. That fails. I kept that command
+for a host that has Docker. Opening a pull request, reading Checks, and
+checking whether merge is blocked are GitHub work. Cursor cannot do those
+clicks. Short commands I already know (`uv run pytest`) are faster if I type
+them.
 
-It tried `docker buildx` inside this container, where Docker is not installed.
-I had to stop that and keep the command for a host that has Docker. Because the
-agent can run the terminal, a failing command looked like the next step.
+## When I use Cursor
 
-It cannot operate GitHub. Opening a pull request, reading Checks, and seeing
-whether merge is blocked are browser work. It also spelled out commands I
-already knew; `uv run pytest` is faster typed.
+I use Cursor for work that has to match this tree: README, HTTP mapping,
+tests, Dockerfile. It can read the files and see a missing `docker` binary.
 
-## What I did myself
-
-GitHub, `/docs`, stopping uvicorn, and `git status` before a commit were easier by hand. Writing the platform
-paragraph without the agent would have been weaker: I would have restated the
-flag instead of explaining host CPU versus the CPU the image must run on.
-
-## Preference
-
-I use the agent for work that has to match this tree: README commands, HTTP
-mapping, tests, Dockerfile. It can read the files and hit a missing `docker`
-binary.
-
-I do not use it for GitHub clicks, for watching the merge button, or for
-opening terminals. I do those myself.
-
-I did not add a second agent. A chat window with no checkout would not have
-seen `aarch64` or the missing CLI, and would have told me to build an image
-here anyway.
+I do GitHub, `/docs`, and the terminal myself when I already know the next
+click.
