@@ -11,8 +11,7 @@ from __future__ import annotations
 
 from typing import Annotated, Any
 
-from fastapi import Depends, FastAPI, Request
-from fastapi.exceptions import RequestValidationError
+from fastapi import Depends, FastAPI, Request, RequestValidationError
 from fastapi.responses import JSONResponse
 
 from claims.models import NotificationRequest
