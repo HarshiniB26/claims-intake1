@@ -1,47 +1,48 @@
 # Tool comparison
 
-I only worked with **one agent**: Cursor. I did not use Claude, ChatGPT, or
-anything else for Day 4. The piece I asked it to do was the README — how to run
-the service, how to run the tests, and why the Docker build uses
-`--platform linux/amd64`.
+I used one agent for this work: Cursor. I did not use another product.
 
-What I can compare is the **Cursor agent** against **me in Cursor** without it
-(opening files, running commands, clicking GitHub myself).
+The task I did with the agent was the README: how to run the service, how to
+run the tests, and why the image is built with `--platform linux/amd64`.
+
+What I can compare is the Cursor **agent** against doing the same work **myself**
+in Cursor (files, terminal, GitHub).
 
 ## What the agent made easy
 
-It was already in this repo. It picked `claims.api.routes:app` out of
-`routes.py` instead of guessing. It saw `Linux aarch64` and
-`docker: command not found` in the terminal, so the README could say: this FDE
-box is ARM, it has no Docker, build on the Mac, do not apt-install Docker here.
+It was already in this repository. It took `claims.api.routes:app` from
+`routes.py` instead of inventing a path. It saw `Linux aarch64` and
+`docker: command not found`, so the README could say this environment is ARM,
+has no Docker, and the image should be built on a machine that does.
 
-It started uvicorn and a POST came back **201**. I did not have to wire that
-check by hand.
+It ran uvicorn and a `POST /notifications` that returned `201`, which is the
+check a new joiner needs.
 
 ## What the agent made awkward
 
-It tried `docker buildx` **here**, which fails. I had to say stop, use the Mac.
-Because it can run the terminal, that wrong command looked like the next step.
+It tried `docker buildx` inside this container, where Docker is not installed.
+I had to stop that and keep the command for a host that has Docker. Because the
+agent can run the terminal, a failing command looked like the next step.
 
-It cannot click GitHub. Compare branches, Checks, merge blocked vs marked — I
-did those in the browser. It also over-explained commands I already knew. Faster
-to type `uv run pytest` myself.
+It cannot operate GitHub. Opening a pull request, reading Checks, and seeing
+whether merge is blocked are browser work. It also spelled out commands I
+already knew; `uv run pytest` is faster typed.
 
-## What I made easy and awkward without the agent
+## What I did myself
 
-Easy: `/docs` in the browser, killing uvicorn with Ctrl+C, `git status` so I do
-not commit `pythonApp/`. Awkward: the linux/amd64 paragraph. Left to me I would
-have written “the flag sets the platform” and skipped *why* this ARM lab is not
-the server CPU.
+GitHub, `/docs`, stopping uvicorn, and `git status` before a commit were easier by hand. Writing the platform
+paragraph without the agent would have been weaker: I would have restated the
+flag instead of explaining host CPU versus the CPU the image must run on.
 
-## What I would take where
+## Preference
 
-For files that have to match this tree — README, `routes.py`, tests, Dockerfile —
-I would use the **Cursor agent**. It can read the repo and hit a real missing
-`docker`.
+I use the agent for work that has to match this tree: README commands, HTTP
+mapping, tests, Dockerfile. It can read the files and hit a missing `docker`
+binary.
 
-For GitHub, for watching the merge button, and for opening terminals, I would
-not. I do that myself.
+I do not use it for GitHub clicks, for watching the merge button, or for
+opening terminals. I do those myself.
 
-I would not add a second agent for this lab. I already had Cursor, and a chat
-window with no repo would have told me to run Docker inside FDE.
+I did not add a second agent. A chat window with no checkout would not have
+seen `aarch64` or the missing CLI, and would have told me to build an image
+here anyway.
