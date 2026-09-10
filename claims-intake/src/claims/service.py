@@ -328,9 +328,13 @@ def submit_notification(
     if not duplicate.passed:
         return duplicate
 
-    failure = evaluate_notification(notification, _policy_from_record(record))
-    if failure is not None:
-        return ValidationOutcome.failed(failure.rule, failure.code)
+    # Walk POLICY_RULES here so the HTTP layer receives section 5.1 detail.
+    # evaluate_notification returns RuleFailure only (C3); that type has no detail.
+    policy = _policy_from_record(record)
+    for rule in POLICY_RULES:
+        outcome = rule(notification, policy)
+        if not outcome.passed:
+            return outcome
 
     recorded = repository.record(
         RecordedNotification.from_accepted(
