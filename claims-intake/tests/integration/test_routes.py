@@ -161,6 +161,18 @@ def test_duplicate_notification_returns_409_with_existing_claim_reference(
             "unexpected_field",
             id="parse-extra-field-rejected",
         ),
+        pytest.param(
+            _payload("fnol_edge.json", "EDGE-11"),
+            "claim_type",
+            "not_in_vocabulary",
+            id="parse-flood-not-in-vocabulary",
+        ),
+        pytest.param(
+            _payload("fnol_edge.json", "EDGE-12"),
+            "estimated_amount",
+            "invalid_decimal_scale",
+            id="parse-amount-invalid-decimal-scale",
+        ),
     ],
 )
 def test_parse_failure_returns_400_not_a_rule_code(
